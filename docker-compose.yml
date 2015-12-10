@@ -1,5 +1,5 @@
 cjdns:
-  build: ./image
+  image: chpio/cjdns
   cap_add:
     - NET_ADMIN
   volumes:
