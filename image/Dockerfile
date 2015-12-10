@@ -14,5 +14,5 @@ RUN { \
 
 VOLUME /data/cjdns
 
-ADD start-cjdns /usr/bin
+ADD start-cjdns /usr/bin/
 CMD ["start-cjdns"]
