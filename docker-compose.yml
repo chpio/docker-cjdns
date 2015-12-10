@@ -1,0 +1,8 @@
+cjdns:
+  build: ./image
+  cap_add:
+    - NET_ADMIN
+  volumes:
+    - ./data-cjdns:/data/cjdns
+  devices:
+    - /dev/net/tun
