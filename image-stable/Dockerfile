@@ -1,4 +1,4 @@
-FROM alpine:3.2
+FROM alpine:3.3
 
 RUN { \
 	apk add --update nodejs bash python git build-base linux-headers; \
