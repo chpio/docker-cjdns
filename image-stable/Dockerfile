@@ -1,6 +1,7 @@
 FROM alpine:3.3
 
 RUN { \
+	set -ex; \
 	apk add --update nodejs bash python git build-base linux-headers; \
 	git clone https://github.com/cjdelisle/cjdns.git /tmp/cjdns; \
 	cd /tmp/cjdns; \
