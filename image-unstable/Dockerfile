@@ -5,7 +5,7 @@ RUN { \
 	apk add --update nodejs bash python git build-base linux-headers; \
 	git clone https://github.com/hyperboria/cjdns.git /tmp/cjdns; \
 	cd /tmp/cjdns; \
-	git checkout 92964a1cfd885bc174076c66909ddfdef0cf7620; \
+	git checkout 914519757271a1d4ef2c5d848508497b30fa4005; \
 	Seccomp_NO=1 ./do; \
 	mv cjdroute /usr/bin; \
 	rm /tmp/cjdns -rf; \
