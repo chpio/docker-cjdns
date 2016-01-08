@@ -1,0 +1,8 @@
+#!/bin/sh -ex
+if ! test -e /data/cjdns/cjdroute.conf; then
+	umask 077
+	cjdroute --genconf | cjdroute --cleanconf > /data/cjdns/cjdroute.conf
+	echo 'WARNING: A new cjdroute.conf file has been generated.'
+fi
+
+exec cjdroute --nobg < /data/cjdns/cjdroute.conf
