@@ -3,7 +3,7 @@ FROM debian:jessie
 RUN { \
 	set -ex; \
 	apt-get update; \
-	apt-get install -y nodejs git build-essential python; \
+	apt-get install --no-install-recommends -y nodejs git build-essential python; \
 	git clone https://github.com/cjdelisle/cjdns.git /tmp/cjdns; \
 	cd /tmp/cjdns; \
 	git checkout 13189fde111d0500427a7a0ce06a970753527bca; \
