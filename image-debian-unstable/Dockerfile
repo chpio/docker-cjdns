@@ -4,7 +4,7 @@ RUN { \
 	set -ex; \
 	apt-get update; \
 	apt-get install -y nodejs git build-essential; \
-	git clone https://github.com/cjdelisle/cjdns.git /tmp/cjdns; \
+	git clone https://github.com/hyperboria/cjdns.git /tmp/cjdns; \
 	cd /tmp/cjdns; \
 	git checkout 914519757271a1d4ef2c5d848508497b30fa4005; \
 	./do; \
