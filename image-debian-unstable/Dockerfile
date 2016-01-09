@@ -6,7 +6,7 @@ RUN { \
 	apt-get install --no-install-recommends -y nodejs git build-essential python ca-certificates; \
 	git clone https://github.com/hyperboria/cjdns.git /tmp/cjdns; \
 	cd /tmp/cjdns; \
-	git checkout 914519757271a1d4ef2c5d848508497b30fa4005; \
+	git checkout 0aa535b3342bc04191ca002a4dc863b33bc1abea; \
 	./do; \
 	mv cjdroute /usr/bin; \
 	apt-get remove -y nodejs git build-essential python; \
