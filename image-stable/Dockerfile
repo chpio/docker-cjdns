@@ -2,14 +2,15 @@ FROM alpine:3.3
 
 RUN { \
 	set -ex; \
-	apk add --update nodejs bash python git build-base linux-headers; \
+	BUILD_DEPS="nodejs bash python git build-base linux-headers"; \
+	apk add --update $BUILD_DEPS; \
 	git clone https://github.com/cjdelisle/cjdns.git /tmp/cjdns; \
 	cd /tmp/cjdns; \
 	git checkout 13189fde111d0500427a7a0ce06a970753527bca; \
 	Seccomp_NO=1 ./do; \
 	mv cjdroute /usr/bin; \
 	rm /tmp/cjdns -rf; \
-	apk del --purge nodejs bash python git build-base linux-headers; \
+	apk del --purge $BUILD_DEPS; \
 	rm -rf /var/cache/apk/*; \
 }
 
