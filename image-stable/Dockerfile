@@ -6,7 +6,7 @@ RUN { \
 	apk add --update $BUILD_DEPS; \
 	git clone https://github.com/cjdelisle/cjdns.git /tmp/cjdns; \
 	cd /tmp/cjdns; \
-	git checkout 13189fde111d0500427a7a0ce06a970753527bca; \
+	git checkout b2a1d31bfb910f730ff7754d2e478b7d64752dff; \
 	Seccomp_NO=1 ./do; \
 	mv cjdroute /usr/bin; \
 	rm /tmp/cjdns -rf; \

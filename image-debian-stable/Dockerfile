@@ -7,7 +7,7 @@ RUN { \
 	apt-get install --no-install-recommends -y $BUILD_DEPS; \
 	git clone https://github.com/cjdelisle/cjdns.git /tmp/cjdns; \
 	cd /tmp/cjdns; \
-	git checkout 13189fde111d0500427a7a0ce06a970753527bca; \
+	git checkout b2a1d31bfb910f730ff7754d2e478b7d64752dff; \
 	./do; \
 	mv cjdroute /usr/bin; \
 	apt-get remove -y $BUILD_DEPS; \
