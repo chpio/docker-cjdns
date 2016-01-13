@@ -1,17 +1,18 @@
-FROM alpine:3.3
+FROM debian:jessie
 
 RUN { \
 	set -ex; \
-	BUILD_DEPS="nodejs bash python git build-base linux-headers"; \
-	apk add --update $BUILD_DEPS; \
+	BUILD_DEPS="nodejs git build-essential python ca-certificates"; \
+	apt-get update; \
+	apt-get install --no-install-recommends -y $BUILD_DEPS; \
 	git clone https://github.com/hyperboria/cjdns.git /tmp/cjdns; \
 	cd /tmp/cjdns; \
 	git checkout 0aa535b3342bc04191ca002a4dc863b33bc1abea; \
-	Seccomp_NO=1 ./do; \
+	./do; \
 	mv cjdroute /usr/bin; \
-	rm /tmp/cjdns -rf; \
-	apk del --purge $BUILD_DEPS; \
-	rm -rf /var/cache/apk/*; \
+	apt-get remove -y $BUILD_DEPS; \
+	apt-get autoremove -y; \
+	rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*; \
 }
 
 VOLUME /data/cjdns
