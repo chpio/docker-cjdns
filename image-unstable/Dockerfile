@@ -9,7 +9,7 @@ RUN { \
 	# install cjdns
 	git clone https://github.com/hyperboria/cjdns.git /tmp/cjdns; \
 	cd /tmp/cjdns; \
-	git checkout 0aa535b3342bc04191ca002a4dc863b33bc1abea; \
+	git checkout 40e87d9419c19063e772e39c7c59a8a8771c5ee8; \
 	./do; \
 	mv cjdroute /usr/bin; \
 
