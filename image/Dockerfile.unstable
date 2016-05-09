@@ -7,9 +7,9 @@ RUN { \
 	apt-get install --no-install-recommends -y $BUILD_DEPS; \
 
 	# install cjdns
-	git clone https://github.com/hyperboria/cjdns.git /tmp/cjdns; \
+	git clone https://github.com/cjdelisle/cjdns.git /tmp/cjdns; \
 	cd /tmp/cjdns; \
-	git checkout 7f5caecfb2e1afcb1f54e54453056e62c7975a92; \
+	git checkout 5112b6202d13d5caf35c134ad3e5f361d0fa54ab; \
 	./do; \
 	mv cjdroute /usr/bin; \
 
