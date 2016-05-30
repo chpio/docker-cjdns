@@ -10,7 +10,7 @@ index 47d22b6..372ae57 100644
 
  #define DEFAULT_TUN_DEV "tun0"
 
-@@ -532,6 +533,12 @@ int main(int argc, char** argv)
+@@ -532,6 +533,10 @@ int main(int argc, char** argv)
          fprintf(stderr, "Log_LEVEL = KEYS, EXPECT TO SEE PRIVATE KEYS IN YOUR LOGS!\n");
      #endif
 
@@ -18,16 +18,43 @@ index 47d22b6..372ae57 100644
 +        return 1;
 +    }
 +
-+    fprintf(stderr, "Sodium inited\n");
-+
      if (argc > 1 && (!CString_strcmp("angel", argv[1]) || !CString_strcmp("core", argv[1]))) {
          return Core_main(argc, argv);
      }
+diff --git a/crypto/CryptoAuth.c b/crypto/CryptoAuth.c
+index b9024cb..612d274 100644
+--- a/crypto/CryptoAuth.c
++++ b/crypto/CryptoAuth.c
+@@ -78,7 +78,11 @@ static inline void getSharedSecret(uint8_t outputSecret[32],
+                                    struct Log* logger)
+ {
+     if (passwordHash == NULL) {
+-        crypto_box_curve25519xsalsa20poly1305_beforenm(outputSecret, herPublicKey, myPrivateKey);
++        if (crypto_box_curve25519xsalsa20poly1305_beforenm(outputSecret, herPublicKey, myPrivateKey)
++        != 0) {
++          Log_error(logger, "error in crypto_box_curve25519xsalsa20poly1305_beforenm\n");
++          return;
++        }
+     } else {
+         union {
+             struct {
+@@ -88,7 +92,10 @@ static inline void getSharedSecret(uint8_t outputSecret[32],
+             uint8_t bytes[64];
+         } buff;
+
+-        crypto_scalarmult_curve25519(buff.components.key, myPrivateKey, herPublicKey);
++        if (crypto_scalarmult_curve25519(buff.components.key, myPrivateKey, herPublicKey) != 0) {
++          Log_error(logger, "error in crypto_scalarmult_curve25519\n");
++          return;
++        }
+         Bits_memcpy(buff.components.passwd, passwordHash, 32);
+         crypto_hash_sha256(outputSecret, buff.bytes, 64);
+     }
 diff --git a/node_build/make.js b/node_build/make.js
-index 9e2681a..39a89f6 100644
+index 9e2681a..1f0b145 100644
 --- a/node_build/make.js
 +++ b/node_build/make.js
-@@ -250,41 +250,8 @@ Builder.configure({
+@@ -250,41 +250,9 @@ Builder.configure({
 
      }).nThen(function (waitFor) {
 
@@ -66,8 +93,9 @@ index 9e2681a..39a89f6 100644
 -                process.chdir(cwd);
 -            }));
 -        }));
-+        builder.config.libs.push('/usr/lib/x86_64-linux-gnu/libsodium.a');
-+        builder.config.includeDirs.push('/usr/include/sodium/');
++        builder.config.libs.push('/tmp/libsodium/src/libsodium/.libs/libsodium.a');
++        builder.config.includeDirs.push('/tmp/libsodium/src/libsodium/include/');
++        builder.config.includeDirs.push('/tmp/libsodium/src/libsodium/include/sodium/');
 
      }).nThen(function (waitFor) {
 
@@ -76,7 +104,7 @@ index 9e2681a..39a89f6 100644
 
      builder.lintFiles(function (fileName, file, callback) {
 -        if (/dependencies/.test(fileName)) {
-+        if (/(dependencies|\/usr\/include)/.test(fileName)) {
++        if (/(dependencies|\/tmp\/libsodium)/.test(fileName)) {
              callback('', false);
              return;
          }

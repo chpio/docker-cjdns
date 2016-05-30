@@ -3,9 +3,19 @@ FROM debian:jessie
 COPY sodium.patch /tmp/
 
 RUN { set -ex; \
-	BUILD_DEPS="nodejs git build-essential python ca-certificates libsodium-dev"; \
+	BUILD_DEPS="nodejs git build-essential python ca-certificates libtool autoconf automake"; \
 	apt-get update; \
 	apt-get install --no-install-recommends -y $BUILD_DEPS; \
+
+	# install libsodium
+	git clone https://github.com/jedisct1/libsodium.git /tmp/libsodium; \
+	cd /tmp/libsodium; \
+	# libsodium v1.0.10
+	git checkout fce6852d64339efa33c0ee4130b3107b888d6067; \
+	./autogen.sh; \
+	./configure; \
+	make -j 8; \
+	make check -j 8; \
 
 	# install cjdns
 	git clone https://github.com/cjdelisle/cjdns.git /tmp/cjdns; \
