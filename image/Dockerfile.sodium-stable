@@ -8,7 +8,7 @@ RUN { set -ex; \
 	apt-get install --no-install-recommends -y $BUILD_DEPS; \
 
 	# install libsodium
-	git clone https://github.com/jedisct1/libsodium.git /tmp/libsodium; \
+	git clone https://github.com/jedisct1/libsodium.git /tmp/libsodium --depth 1 --branch 1.0.10; \
 	cd /tmp/libsodium; \
 	# libsodium v1.0.10
 	git checkout fce6852d64339efa33c0ee4130b3107b888d6067; \
