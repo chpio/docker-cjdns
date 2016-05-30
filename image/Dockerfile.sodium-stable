@@ -1,0 +1,28 @@
+FROM debian:jessie
+
+COPY sodium.patch /tmp/
+
+RUN { set -ex; \
+	BUILD_DEPS="nodejs git build-essential python ca-certificates libsodium-dev"; \
+	apt-get update; \
+	apt-get install --no-install-recommends -y $BUILD_DEPS; \
+
+	# install cjdns
+	git clone https://github.com/cjdelisle/cjdns.git /tmp/cjdns; \
+	cd /tmp/cjdns; \
+	# cjdns v17.3
+	git checkout 8afe708153b283332b1368915660108c13e8cd1c; \
+	git apply /tmp/sodium.patch; \
+	./do; \
+	mv cjdroute /usr/bin; \
+
+	# clean up
+	apt-get remove -y $BUILD_DEPS; \
+	apt-get autoremove -y; \
+	rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*; \
+}
+
+VOLUME /data/cjdns
+
+COPY start-cjdns /usr/bin/
+CMD ["start-cjdns"]
