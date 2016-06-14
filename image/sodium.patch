@@ -10,11 +10,12 @@ index 47d22b6..372ae57 100644
 
  #define DEFAULT_TUN_DEV "tun0"
 
-@@ -532,6 +533,10 @@ int main(int argc, char** argv)
+@@ -532,6 +533,11 @@ int main(int argc, char** argv)
          fprintf(stderr, "Log_LEVEL = KEYS, EXPECT TO SEE PRIVATE KEYS IN YOUR LOGS!\n");
      #endif
 
 +    if (sodium_init() == -1) {
++        fprintf(stderr, "error in sodium_init\n");
 +        return 1;
 +    }
 +
