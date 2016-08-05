@@ -9,7 +9,7 @@ RUN { \
 	# install cjdns
 	git clone https://github.com/cjdelisle/cjdns.git /tmp/cjdns; \
 	cd /tmp/cjdns; \
-	git checkout 359c72fb4af74fd2a92da539d73c79f27516d10d; \
+	git checkout 5c2c8095ee21eae948f1d3bc622053d311e7e97a; \
 	./do; \
 	mv cjdroute /usr/bin; \
 
