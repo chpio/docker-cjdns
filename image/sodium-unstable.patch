@@ -1,0 +1,116 @@
+diff --git a/client/cjdroute2.c b/client/cjdroute2.c
+index 47d22b6..fbf6ee4 100644
+--- a/client/cjdroute2.c
++++ b/client/cjdroute2.c
+@@ -57,6 +57,7 @@
+ #include <stdint.h>
+ #include <stdio.h>
+ #include <unistd.h>
++#include <sodium.h>
+ 
+ #define DEFAULT_TUN_DEV "tun0"
+ 
+@@ -532,6 +533,11 @@ int main(int argc, char** argv)
+         fprintf(stderr, "Log_LEVEL = KEYS, EXPECT TO SEE PRIVATE KEYS IN YOUR LOGS!\n");
+     #endif
+ 
++    if (sodium_init() == -1) {
++        fprintf(stderr, "error in sodium_init\n");
++        return 1;
++    }
++
+     if (argc > 1 && (!CString_strcmp("angel", argv[1]) || !CString_strcmp("core", argv[1]))) {
+         return Core_main(argc, argv);
+     }
+diff --git a/crypto/CryptoAuth.c b/crypto/CryptoAuth.c
+index b9024cb..612d274 100644
+--- a/crypto/CryptoAuth.c
++++ b/crypto/CryptoAuth.c
+@@ -78,7 +78,11 @@ static inline void getSharedSecret(uint8_t outputSecret[32],
+                                    struct Log* logger)
+ {
+     if (passwordHash == NULL) {
+-        crypto_box_curve25519xsalsa20poly1305_beforenm(outputSecret, herPublicKey, myPrivateKey);
++        if (crypto_box_curve25519xsalsa20poly1305_beforenm(outputSecret, herPublicKey, myPrivateKey)
++        != 0) {
++          Log_error(logger, "error in crypto_box_curve25519xsalsa20poly1305_beforenm\n");
++          return;
++        }
+     } else {
+         union {
+             struct {
+@@ -88,7 +92,10 @@ static inline void getSharedSecret(uint8_t outputSecret[32],
+             uint8_t bytes[64];
+         } buff;
+ 
+-        crypto_scalarmult_curve25519(buff.components.key, myPrivateKey, herPublicKey);
++        if (crypto_scalarmult_curve25519(buff.components.key, myPrivateKey, herPublicKey) != 0) {
++          Log_error(logger, "error in crypto_scalarmult_curve25519\n");
++          return;
++        }
+         Bits_memcpy(buff.components.passwd, passwordHash, 32);
+         crypto_hash_sha256(outputSecret, buff.bytes, 64);
+     }
+diff --git a/node_build/make.js b/node_build/make.js
+index 2cecd10..f33c602 100644
+--- a/node_build/make.js
++++ b/node_build/make.js
+@@ -251,46 +251,9 @@ Builder.configure({
+         }));
+ 
+     }).nThen(function (waitFor) {
+-
+-        builder.config.libs.push(dependencyDir + '/cnacl/jsbuild/libnacl.a');
+-        builder.config.includeDirs.push(dependencyDir + '/cnacl/jsbuild/include/');
+-
+-        // needed for Sign.c which pulls in crypto_int32.h
+-        builder.config.includeDirs.push(dependencyDir + '/cnacl/jsbuild/include_internal/');
+-
+-        Fs.exists(dependencyDir + '/cnacl/jsbuild/libnacl.a', waitFor(function (exists) {
+-            if (exists) { return; }
+-
+-            console.log("Build NaCl");
+-            var cwd = process.cwd();
+-            process.chdir(dependencyDir + '/cnacl/');
+-
+-            var NaCl = require(process.cwd() + '/node_build/make.js');
+-            NaCl.build(function (args, callback) {
+-                if (builder.config.systemName !== 'win32') {
+-                    args.unshift('-fPIC');
+-                }
+-
+-                args.unshift(builder.config.optimizeLevel, '-fomit-frame-pointer');
+-
+-                if (CFLAGS) {
+-                    [].push.apply(args, CFLAGS.split(' '));
+-                }
+-
+-                if (!builder.config.crossCompiling) {
+-                    if (NO_MARCH_FLAG.indexOf(process.arch) < -1) {
+-                        builder.config.cflags.push('-march=native');
+-                    }
+-                }
+-
+-                builder.cc(args, callback);
+-            },
+-            builder.config,
+-            waitFor(function () {
+-                process.chdir(cwd);
+-            }));
+-        }));
+-
++        builder.config.libs.push('/tmp/libsodium/src/libsodium/.libs/libsodium.a');
++        builder.config.includeDirs.push('/tmp/libsodium/src/libsodium/include/');
++        builder.config.includeDirs.push('/tmp/libsodium/src/libsodium/include/sodium/');
+     }).nThen(function (waitFor) {
+ 
+         builder.config.libs.push(libuvLib);
+@@ -429,7 +392,7 @@ Builder.configure({
+     builder.buildExecutable('crypto/random/randombytes.c');
+ 
+     builder.lintFiles(function (fileName, file, callback) {
+-        if (/dependencies/.test(fileName)) {
++        if (/(dependencies|\/tmp\/libsodium)/.test(fileName)) {
+             callback('', false);
+             return;
+         }

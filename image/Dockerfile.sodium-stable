@@ -1,6 +1,6 @@
 FROM debian:jessie
 
-COPY sodium.patch /tmp/
+COPY sodium-stable.patch /tmp/sodium.patch
 
 RUN { set -ex; \
 	BUILD_DEPS="nodejs git build-essential python ca-certificates libtool autoconf automake"; \
