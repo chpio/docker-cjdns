@@ -20,7 +20,7 @@ RUN { set -ex; \
 	# install cjdns
 	git clone https://github.com/cjdelisle/cjdns.git /tmp/cjdns; \
 	cd /tmp/cjdns; \
-	git checkout 5c2c8095ee21eae948f1d3bc622053d311e7e97a; \
+	git checkout f794ef8595005be4765b914247777a5600410006; \
 	git apply /tmp/sodium.patch; \
 	./do; \
 	mv cjdroute /usr/bin; \
