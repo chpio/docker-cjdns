@@ -1,0 +1,35 @@
+FROM debian:jessie
+
+ARG BUILD_DEPS="nodejs git build-essential python ca-certificates"
+
+RUN { \
+	set -ex; \
+
+	apt-get update; \
+	apt-get install --no-install-recommends -y $BUILD_DEPS; \
+
+	# clean up
+	rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*; \
+}
+
+ARG TAG=cjdns-v18
+
+RUN { \
+	set -ex; \
+	
+	# install cjdns
+	git clone https://github.com/cjdelisle/cjdns.git /tmp/cjdns --depth 1 --branch $TAG; \
+	cd /tmp/cjdns; \
+	./do; \
+	mv cjdroute /usr/bin; \
+
+	# clean up
+	apt-get remove -y $BUILD_DEPS; \
+	apt-get autoremove -y; \
+	rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*; \
+}
+
+VOLUME /data/cjdns
+
+COPY start-cjdns /usr/bin/
+CMD ["start-cjdns"]
