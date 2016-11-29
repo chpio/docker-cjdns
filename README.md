@@ -31,3 +31,11 @@ services:
     devices:
       - /dev/net/tun
 ```
+
+### DIY builds (built-in nacl)
+
+```sh
+$ git clone "https://github.com/chpio/docker-cjdns.git"
+$ cd docker-cjdns
+$ CJDNS_TAG=cjdns-v18 docker-compose up
+```

@@ -1,7 +1,11 @@
 version: "2"
 services:
   cjdns:
-    image: chpio/cjdns:stable
+    build:
+      context: ./image
+      dockerfile: Dockerfile.diy
+      args:
+        TAG: ${CJDNS_TAG}
     cap_add:
       - NET_ADMIN
     volumes:
