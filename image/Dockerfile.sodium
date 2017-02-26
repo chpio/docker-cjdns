@@ -3,7 +3,7 @@ FROM debian:jessie
 COPY sodium.patch /tmp/sodium.patch
 
 RUN { set -ex; \
-	BUILD_DEPS="nodejs git build-essential python ca-certificates libtool autoconf automake"; \
+	BUILD_DEPS="wget git build-essential python ca-certificates libtool autoconf automake"; \
 	apt-get update; \
 	apt-get install --no-install-recommends -y $BUILD_DEPS; \
 

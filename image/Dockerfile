@@ -2,7 +2,7 @@ FROM debian:jessie
 
 RUN { \
 	set -ex; \
-	BUILD_DEPS="nodejs git build-essential python ca-certificates"; \
+	BUILD_DEPS="wget git build-essential python ca-certificates"; \
 	apt-get update; \
 	apt-get install --no-install-recommends -y $BUILD_DEPS; \
 
