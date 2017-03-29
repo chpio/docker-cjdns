@@ -1,4 +1,4 @@
-FROM debian:jessie
+FROM debian:jessie-slim
 
 COPY sodium.patch /tmp/sodium.patch
 
