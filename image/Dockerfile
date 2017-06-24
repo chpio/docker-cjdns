@@ -7,9 +7,9 @@ RUN { \
 	apt-get install --no-install-recommends -y $BUILD_DEPS; \
 
 	# install cjdns
-	git clone https://github.com/cjdelisle/cjdns.git /tmp/cjdns --depth 1 --branch cjdns-v19.1; \
+	git clone https://github.com/cjdelisle/cjdns.git /tmp/cjdns --depth 1 --branch cjdns-v20; \
 	cd /tmp/cjdns; \
-	git checkout f4f73cdc120907f9952f7c74abe68394fd2879a0; \
+	git checkout efd7d7f82be405fe47f6806b6cc9c0043885bc2e; \
 	./do; \
 	mv cjdroute /usr/bin; \
 
