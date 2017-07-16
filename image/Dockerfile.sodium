@@ -8,9 +8,9 @@ RUN { set -ex; \
 	apt-get install --no-install-recommends -y $BUILD_DEPS; \
 
 	# install libsodium
-	git clone https://github.com/jedisct1/libsodium.git /tmp/libsodium --depth 1 --branch 1.0.12; \
+	git clone https://github.com/jedisct1/libsodium.git /tmp/libsodium --depth 1 --branch 1.0.13; \
 	cd /tmp/libsodium; \
-	git checkout 70170c28c844a4786e75efc626e1aeebc93caebc; \
+	git checkout 7d5d9204e515ce37cce6d5e5015a1f94d1d92492; \
 	./autogen.sh; \
 	./configure; \
 	make -j 8; \
