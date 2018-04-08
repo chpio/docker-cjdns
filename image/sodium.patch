@@ -1,5 +1,18 @@
+From d395943fcb639684037bbc8cb7a6fc30a1ae2223 Mon Sep 17 00:00:00 2001
+From: Thomas Heck <t@b128.net>
+Date: Sun, 8 Apr 2018 16:38:52 +0200
+Subject: [PATCH] use libsodium
+
+---
+ client/cjdroute2.c    |  6 ++++++
+ crypto/CryptoAuth.c   | 11 ++++++++--
+ crypto/Sign.c         |  3 +--
+ node_build/builder.js | 33 -----------------------------
+ node_build/make.js    | 49 ++++---------------------------------------
+ 5 files changed, 20 insertions(+), 82 deletions(-)
+
 diff --git a/client/cjdroute2.c b/client/cjdroute2.c
-index 47d22b6..fbf6ee4 100644
+index c960c6ed..73be0e04 100644
 --- a/client/cjdroute2.c
 +++ b/client/cjdroute2.c
 @@ -57,6 +57,7 @@
@@ -7,13 +20,13 @@ index 47d22b6..fbf6ee4 100644
  #include <stdio.h>
  #include <unistd.h>
 +#include <sodium.h>
-
+ 
  #define DEFAULT_TUN_DEV "tun0"
-
-@@ -532,6 +533,11 @@ int main(int argc, char** argv)
+ 
+@@ -523,6 +524,11 @@ int main(int argc, char** argv)
          fprintf(stderr, "Log_LEVEL = KEYS, EXPECT TO SEE PRIVATE KEYS IN YOUR LOGS!\n");
      #endif
-
+ 
 +    if (sodium_init() == -1) {
 +        fprintf(stderr, "error in sodium_init\n");
 +        return 1;
@@ -23,10 +36,10 @@ index 47d22b6..fbf6ee4 100644
          return Core_main(argc, argv);
      }
 diff --git a/crypto/CryptoAuth.c b/crypto/CryptoAuth.c
-index b9024cb..612d274 100644
+index 10c44ea0..aa52dd22 100644
 --- a/crypto/CryptoAuth.c
 +++ b/crypto/CryptoAuth.c
-@@ -78,7 +78,11 @@ static inline void getSharedSecret(uint8_t outputSecret[32],
+@@ -86,7 +86,11 @@ static inline void getSharedSecret(uint8_t outputSecret[32],
                                     struct Log* logger)
  {
      if (passwordHash == NULL) {
@@ -39,10 +52,10 @@ index b9024cb..612d274 100644
      } else {
          union {
              struct {
-@@ -88,7 +92,10 @@ static inline void getSharedSecret(uint8_t outputSecret[32],
+@@ -96,7 +100,10 @@ static inline void getSharedSecret(uint8_t outputSecret[32],
              uint8_t bytes[64];
          } buff;
-
+ 
 -        crypto_scalarmult_curve25519(buff.components.key, myPrivateKey, herPublicKey);
 +        if (crypto_scalarmult_curve25519(buff.components.key, myPrivateKey, herPublicKey) != 0) {
 +          Log_error(logger, "error in crypto_scalarmult_curve25519\n");
@@ -52,26 +65,70 @@ index b9024cb..612d274 100644
          crypto_hash_sha256(outputSecret, buff.bytes, 64);
      }
 diff --git a/crypto/Sign.c b/crypto/Sign.c
-index 703d915..058adc9 100644
+index 973630e3..fb80907e 100644
 --- a/crypto/Sign.c
 +++ b/crypto/Sign.c
 @@ -15,8 +15,7 @@
-
+ 
  #include "crypto/Sign.h"
-
+ 
 -#include "node_build/dependencies/cnacl/crypto_sign/ed25519/ref10/ge.h"
 -#include "node_build/dependencies/cnacl/crypto_sign/ed25519/ref10/sc.h"
 +#include <sodium/private/curve25519_ref10.h>
  #include "crypto_hash_sha512.h"
  #include "crypto_sign_ed25519.h"
-
+ 
+diff --git a/node_build/builder.js b/node_build/builder.js
+index 79d5d2f7..296ef54c 100644
+--- a/node_build/builder.js
++++ b/node_build/builder.js
+@@ -1057,39 +1057,6 @@ var configure = module.exports.configure = function (params, configFunc) {
+                 }
+             }));
+         });
+-
+-    }).nThen(function (waitFor) {
+-
+-        if (builder.linters.length === 0) {
+-            return;
+-        }
+-
+-        debug("Checking codestyle");
+-
+-        var sema = Semaphore.create(64);
+-
+-        builder.rebuiltFiles.forEach(function (fileName) {
+-            sema.take(waitFor(function (returnAfter) {
+-                Fs.readFile(fileName, waitFor(function (err, ret) {
+-                    if (err) { throw err; }
+-
+-                    ret = ret.toString('utf8');
+-                    nThen(function (waitFor) {
+-
+-                        builder.linters.forEach(function (linter) {
+-                            linter(fileName, ret, waitFor(function (out, isErr) {
+-                                if (isErr) {
+-                                    debug("\033[1;31m" + out + "\033[0m");
+-                                    builder.failure = true;
+-                                }
+-                            }));
+-                        });
+-
+-                    }).nThen(returnAfter(waitFor()));
+-                }));
+-            }));
+-        });
+-
+     }).nThen(function (waitFor) {
+ 
+         stage(testStage, builder, waitFor);
 diff --git a/node_build/make.js b/node_build/make.js
-index 2cecd10..f33c602 100644
+index 3d301f45..fe54a5bc 100644
 --- a/node_build/make.js
 +++ b/node_build/make.js
-@@ -251,46 +251,9 @@ Builder.configure({
+@@ -254,50 +254,9 @@ Builder.configure({
          }));
-
+ 
      }).nThen(function (waitFor) {
 -
 -        builder.config.libs.push(dependencyDir + '/cnacl/jsbuild/libnacl.a');
@@ -95,13 +152,17 @@ index 2cecd10..f33c602 100644
 -
 -                args.unshift(builder.config.optimizeLevel, '-fomit-frame-pointer');
 -
+-                if (!/^\-O0$/.test(builder.config.optimizeLevel)) {
+-                    args.unshift('-D_FORTIFY_SOURCE=2');
+-                }
+-
 -                if (CFLAGS) {
 -                    [].push.apply(args, CFLAGS.split(' '));
 -                }
 -
 -                if (!builder.config.crossCompiling) {
--                    if (NO_MARCH_FLAG.indexOf(process.arch) < -1) {
--                        builder.config.cflags.push('-march=native');
+-                    if (NO_MARCH_FLAG.indexOf(process.arch) == -1) {
+-                        args.unshift('-march=native');
 -                    }
 -                }
 -
@@ -117,14 +178,17 @@ index 2cecd10..f33c602 100644
 +        builder.config.includeDirs.push('/build/libsodium/src/libsodium/include/');
 +        builder.config.includeDirs.push('/build/libsodium/src/libsodium/include/sodium/');
      }).nThen(function (waitFor) {
-
+ 
          builder.config.libs.push(libuvLib);
-@@ -429,7 +392,7 @@ Builder.configure({
+@@ -441,7 +400,7 @@ Builder.configure({
      builder.buildExecutable('crypto/random/randombytes.c');
-
+ 
      builder.lintFiles(function (fileName, file, callback) {
 -        if (/dependencies/.test(fileName)) {
 +        if (/(dependencies|\/tmp\/libsodium)/.test(fileName)) {
              callback('', false);
              return;
          }
+-- 
+2.17.0
+

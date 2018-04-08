@@ -20,9 +20,9 @@ RUN { set -ex; \
 }
 
 RUN { set -ex; \
-	git clone https://github.com/jedisct1/libsodium.git libsodium --depth 1 --branch 1.0.16; \
+	git clone https://github.com/jedisct1/libsodium.git libsodium --depth 1 --branch 1.0.15; \
 	cd libsodium; \
-	git checkout 675149b9b8b66ff44152553fb3ebf9858128363d; \
+	git checkout c5e43f4c1cf62b4669b1f33516fc33ef2d005187; \
 	./autogen.sh; \
 	./configure; \
 	make -j 8; \
