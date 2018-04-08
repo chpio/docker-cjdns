@@ -1,29 +1,23 @@
-FROM debian:stretch-slim
+FROM debian:stretch-slim as builder
+
+WORKDIR /build
 
 RUN { set -ex; \
-	# install build deps
-	BUILD_DEPS="nodejs git build-essential python ca-certificates"; \
 	apt-get update; \
-	apt-get install --no-install-recommends -y $BUILD_DEPS; \
-
-	# clean up
-	rm -rf /var/lib/apt/lists/*; \
+	apt-get install --no-install-recommends -y \
+		wget git build-essential python ca-certificates nodejs; \
 }
 
-ARG TAG=cjdns-v18
+ARG TAG=cjdns-v20.1
+RUN git clone https://github.com/cjdelisle/cjdns.git cjdns --depth 1 --branch $TAG
 
 RUN { set -ex; \
-	# install cjdns
-	git clone https://github.com/cjdelisle/cjdns.git /tmp/cjdns --depth 1 --branch $TAG; \
-	cd /tmp/cjdns; \
+	cd cjdns; \
 	./do; \
-	mv cjdroute /usr/bin; \
-
-	# clean up
-	rm -rf /tmp/* /var/tmp/*; \
 }
 
-VOLUME /data/cjdns
-
+FROM debian:stretch-slim
 COPY start-cjdns /usr/bin/
+VOLUME /data/cjdns
 CMD ["start-cjdns"]
+COPY --from=builder /build/cjdns/cjdroute /usr/bin/

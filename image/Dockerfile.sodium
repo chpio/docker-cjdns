@@ -1,36 +1,43 @@
-FROM debian:stretch-slim
+FROM debian:stretch-slim as builder
 
-COPY sodium.patch /tmp/sodium.patch
+WORKDIR /build
 
 RUN { set -ex; \
-	BUILD_DEPS="wget git build-essential python ca-certificates libtool autoconf automake"; \
 	apt-get update; \
-	apt-get install --no-install-recommends -y $BUILD_DEPS; \
+	apt-get install --no-install-recommends -y \
+		wget git build-essential python ca-certificates nodejs; \
+}
 
-	# install libsodium
-	git clone https://github.com/jedisct1/libsodium.git /tmp/libsodium --depth 1 --branch 1.0.13; \
-	cd /tmp/libsodium; \
-	git checkout 7d5d9204e515ce37cce6d5e5015a1f94d1d92492; \
+RUN { set -ex; \
+	git clone https://github.com/cjdelisle/cjdns.git cjdns --depth 1 --branch cjdns-v20.1; \
+	cd cjdns; \
+	git checkout bd6b60d817d3126fb45f671c1c7637042a0be937; \
+}
+
+RUN { set -ex; \
+	apt-get install --no-install-recommends -y \
+		libtool autoconf automake; \
+}
+
+RUN { set -ex; \
+	git clone https://github.com/jedisct1/libsodium.git libsodium --depth 1 --branch 1.0.16; \
+	cd libsodium; \
+	git checkout 675149b9b8b66ff44152553fb3ebf9858128363d; \
 	./autogen.sh; \
 	./configure; \
 	make -j 8; \
 	make check -j 8; \
-
-	# install cjdns
-	git clone https://github.com/cjdelisle/cjdns.git /tmp/cjdns --depth 1 --branch cjdns-v20.1; \
-	cd /tmp/cjdns; \
-	git checkout bd6b60d817d3126fb45f671c1c7637042a0be937; \
-	git apply /tmp/sodium.patch; \
-	./do; \
-	mv cjdroute /usr/bin; \
-
-	# clean up
-	apt-get remove -y $BUILD_DEPS; \
-	apt-get autoremove -y; \
-	rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*; \
 }
 
-VOLUME /data/cjdns
+COPY sodium.patch .
+RUN { set -ex; \
+	cd cjdns; \
+	git apply ../sodium.patch; \
+	./do; \
+}
 
+FROM debian:stretch-slim
 COPY start-cjdns /usr/bin/
+VOLUME /data/cjdns
 CMD ["start-cjdns"]
+COPY --from=builder /build/cjdns/cjdroute /usr/bin/

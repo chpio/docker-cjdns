@@ -113,9 +113,9 @@ index 2cecd10..f33c602 100644
 -            }));
 -        }));
 -
-+        builder.config.libs.push('/tmp/libsodium/src/libsodium/.libs/libsodium.a');
-+        builder.config.includeDirs.push('/tmp/libsodium/src/libsodium/include/');
-+        builder.config.includeDirs.push('/tmp/libsodium/src/libsodium/include/sodium/');
++        builder.config.libs.push('/build/libsodium/src/libsodium/.libs/libsodium.a');
++        builder.config.includeDirs.push('/build/libsodium/src/libsodium/include/');
++        builder.config.includeDirs.push('/build/libsodium/src/libsodium/include/sodium/');
      }).nThen(function (waitFor) {
 
          builder.config.libs.push(libuvLib);
