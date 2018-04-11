@@ -1,11 +1,10 @@
-FROM debian:stretch-slim as builder
+FROM buildpack-deps:stretch as builder
 
 WORKDIR /build
 
 RUN { set -ex; \
 	apt-get update; \
-	apt-get install --no-install-recommends -y \
-		wget git build-essential python ca-certificates nodejs; \
+	apt-get install --no-install-recommends -y nodejs; \
 }
 
 ARG TAG=cjdns-v20.1
