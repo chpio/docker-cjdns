@@ -22,5 +22,5 @@ services:
 ```sh
 $ git clone "https://github.com/chpio/docker-cjdns.git"
 $ cd docker-cjdns
-$ CJDNS_TAG=cjdns-v18 docker-compose up
+$ CJDNS_TAG=cjdns-v20.2 docker-compose up
 ```

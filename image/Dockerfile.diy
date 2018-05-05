@@ -7,7 +7,7 @@ RUN { set -ex; \
 	apt-get install --no-install-recommends -y nodejs; \
 }
 
-ARG TAG=cjdns-v20.1
+ARG TAG=cjdns-v20.2
 RUN git clone https://github.com/cjdelisle/cjdns.git cjdns --depth 1 --branch $TAG
 
 RUN { set -ex; \
