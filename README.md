@@ -2,22 +2,7 @@
 
 ## Usage
 
-### latest release (libsodium)
-
-```yaml
-version: "2"
-services:
-  cjdns:
-    image: chpio/cjdns:sodium
-    cap_add:
-      - NET_ADMIN
-    volumes:
-      - ./data-cjdns:/data/cjdns
-    devices:
-      - /dev/net/tun
-```
-
-### latest release (built-in nacl)
+### latest release
 
 ```yaml
 version: "2"
@@ -32,7 +17,7 @@ services:
       - /dev/net/tun
 ```
 
-### DIY builds (built-in nacl)
+### DIY builds
 
 ```sh
 $ git clone "https://github.com/chpio/docker-cjdns.git"
