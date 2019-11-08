@@ -1,4 +1,4 @@
-FROM buildpack-deps:buster as builder
+FROM docker.io/buildpack-deps:buster as builder
 
 WORKDIR /build
 
@@ -18,7 +18,7 @@ RUN { set -ex; \
 	./do; \
 }
 
-FROM debian:buster-slim
+FROM docker.io/debian:buster-slim
 COPY start-cjdns /usr/bin/
 VOLUME /data/cjdns
 CMD ["start-cjdns"]
