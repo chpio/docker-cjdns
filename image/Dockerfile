@@ -1,4 +1,4 @@
-FROM buildpack-deps:stretch as builder
+FROM buildpack-deps:buster as builder
 
 WORKDIR /build
 
@@ -18,7 +18,7 @@ RUN { set -ex; \
 	./do; \
 }
 
-FROM debian:stretch-slim
+FROM debian:buster-slim
 COPY start-cjdns /usr/bin/
 VOLUME /data/cjdns
 CMD ["start-cjdns"]
