@@ -8,9 +8,9 @@ RUN { set -ex; \
 }
 
 RUN { set -ex; \
-	git clone https://github.com/cjdelisle/cjdns.git cjdns --depth 1 --branch cjdns-v20.5; \
+	git clone https://github.com/cjdelisle/cjdns.git cjdns --depth 1 --branch cjdns-v20.6; \
 	cd cjdns; \
-	git checkout d9eef7fb2da84faf28eabc8bbb2a856b50ec8fc7; \
+	git checkout a6dcc71ab50b1944b46373de3b337edcd5829d81; \
 }
 
 RUN { set -ex; \
